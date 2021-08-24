@@ -1,5 +1,9 @@
 import { HassEntities } from 'home-assistant-js-websocket'
-import { CompanionInputFieldCheckbox, CompanionInputFieldDropdown } from '../../../instance_skel_types'
+import {
+	CompanionInputFieldCheckbox,
+	CompanionInputFieldDropdown,
+	CompanionInputFieldTextInput,
+} from '../../../instance_skel_types'
 import { OnOffToggle } from './util'
 
 export function OnOffTogglePicker(): CompanionInputFieldDropdown {
@@ -23,6 +27,16 @@ export function OnOffPicker(): CompanionInputFieldCheckbox {
 		label: 'State',
 		id: 'state',
 		default: true,
+	}
+}
+
+export function PctText(): CompanionInputFieldTextInput {
+	return {
+		type: 'textinput',
+		label: 'Adjustment',
+		id: 'pct',
+		default: '0',
+		required: true,
 	}
 }
 

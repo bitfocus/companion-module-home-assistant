@@ -1,12 +1,13 @@
 import { Connection, HassEntities } from 'home-assistant-js-websocket'
 import { CompanionActionEvent, CompanionActions, CompanionAction } from '../../../instance_skel_types'
-import { EntityPicker, OnOffTogglePicker } from './choices'
+import { EntityPicker, OnOffTogglePicker, PctText } from './choices'
 import { OnOffToggle } from './util'
 
 export enum ActionId {
 	SetSwitch = 'set_switch',
 	SetInputBoolean = 'set_input_boolean',
 	SetLightOn = 'set_light_on',
+	AdjLightPct = 'adj_light_pct',
 	ExecuteScript = 'execute_script',
 }
 
@@ -43,6 +44,19 @@ export function GetActionsList(
 			})
 		}
 	}
+	const entityAdj = (opt: CompanionActionEvent['options']): void => {
+		const { client } = getProps()
+
+		client?.sendMessage({
+			type: 'call_service',
+			domain: 'homeassistant',
+			service: 'turn_on',
+			service_data: {
+				entity_id: opt.entity_id,
+				brightness_step_pct: Number(opt.pct),
+			},
+		})
+	}
 
 	const { state: initialState } = getProps()
 	const actions: { [id in ActionId]: CompanionActionWithCallback | undefined } = {
@@ -60,6 +74,11 @@ export function GetActionsList(
 			label: 'Set light on/off state',
 			options: [EntityPicker(initialState, 'light'), OnOffTogglePicker()],
 			callback: (evt): void => entityOnOff(evt.options),
+		},
+		[ActionId.AdjLightPct]: {
+			label: 'Adjust light brightness (percentage)',
+			options: [EntityPicker(initialState, 'light'), PctText()],
+			callback: (evt): void => entityAdj(evt.options),
 		},
 		[ActionId.ExecuteScript]: {
 			label: 'Execute script',
